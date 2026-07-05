@@ -100,6 +100,7 @@ export default function InboxDashboard() {
   const [selectedId, setSelectedId] = useState('');
   const [activeThread, setActiveThread] = useState(null);
   const [search, setSearch] = useState('');
+  const [filterMode, setFilterMode] = useState('all');
   const [activeTone, setActiveTone] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('mailai_preferred_tone') || 'formal';
@@ -528,6 +529,11 @@ export default function InboxDashboard() {
             ) : (
               threads
                 .filter(t => t.subject.toLowerCase().includes(search.toLowerCase()) || t.from.toLowerCase().includes(search.toLowerCase()))
+                .filter(t => {
+                  if (filterMode === 'unread') return !t.isRead;
+                  if (filterMode === 'starred') return !!starredThreads[t.id];
+                  return true;
+                })
                 .map(t => (
                   <div
                     key={t.id}
