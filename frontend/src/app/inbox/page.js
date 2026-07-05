@@ -118,6 +118,7 @@ export default function InboxDashboard() {
   const [copied, setCopied] = useState(false);
   const [summaryLength, setSummaryLength] = useState('medium');
   const [toastMessage, setToastMessage] = useState('');
+  const [sentSuccess, setSentSuccess] = useState(false);
   const [customDirectives, setCustomDirectives] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [translating, setTranslating] = useState(false);
@@ -405,6 +406,8 @@ export default function InboxDashboard() {
       setSending(true);
       await api.post(`/api/emails/${selectedId}/send`, { body: replyText });
       showToast('Reply sent successfully via Gmail API!');
+      setSentSuccess(true);
+      setTimeout(() => setSentSuccess(false), 4000);
       setReplyText('');
       // Reload details to show the new message
       fetchThreadDetails(selectedId);
@@ -604,6 +607,14 @@ export default function InboxDashboard() {
                     )}
                   </div>
                 ))}
+
+                {/* Sent success confirmation feedback */}
+                {sentSuccess && (
+                  <div className="bg-emerald-950/20 border border-emerald-500/20 text-emerald-400 text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 mt-4 animate-pulse">
+                    <CheckCircle2 size={12} />
+                    <span>Your response has been dispatched via Gmail OAuth API client.</span>
+                  </div>
+                )}
 
                 {/* Reply Editor (rendered inline below email messages) */}
                 <div className="p-4 border border-white/5 bg-gray-900/30 rounded-2xl space-y-3 mt-6">
