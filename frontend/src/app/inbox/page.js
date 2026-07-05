@@ -676,9 +676,12 @@ export default function InboxDashboard() {
                   />
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-gray-600">
-                      Co-pilot Powered by Google Gemini AI
-                    </span>
+                    <div className="flex items-center gap-3 text-[10px] text-gray-600">
+                      <span>Co-pilot Powered by Google Gemini AI</span>
+                      <span className={`${replyText.length > 800 ? 'text-amber-550 font-bold' : ''}`}>
+                        {replyText.length} chars
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleCopy}
