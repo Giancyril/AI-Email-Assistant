@@ -543,11 +543,16 @@ export default function InboxDashboard() {
                       }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5 truncate max-w-[200px]">
-                        {starredThreads[t.id] && <Star size={10} className="fill-amber-400 text-amber-400 shrink-0" />}
-                        <span className={`text-xs truncate ${!t.isRead ? 'text-white font-bold' : 'text-gray-400'}`}>
-                          {t.from.split(' <')[0]}
-                        </span>
+                      <div className="flex items-center gap-2 truncate max-w-[220px]">
+                        <div className="w-5 h-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-[9px] font-bold text-indigo-400 shrink-0">
+                          {t.from[0]?.toUpperCase() || 'M'}
+                        </div>
+                        <div className="flex items-center gap-1 truncate">
+                          {starredThreads[t.id] && <Star size={9} className="fill-amber-400 text-amber-400 shrink-0" />}
+                          <span className={`text-xs truncate ${!t.isRead ? 'text-white font-bold' : 'text-gray-400'}`}>
+                            {t.from.split(' <')[0]}
+                          </span>
+                        </div>
                       </div>
                       <span className="text-[10px] text-gray-600 font-medium shrink-0">{t.date}</span>
                     </div>
