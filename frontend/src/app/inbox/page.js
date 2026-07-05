@@ -567,7 +567,12 @@ export default function InboxDashboard() {
                         <Paperclip size={10} className="text-gray-500 shrink-0" title="Contains attachments" />
                       )}
                       <UrgencyBadge urgency={t.urgency} />
-                      <span className="text-[9px] text-gray-600 bg-white/5 px-2 py-0.5 rounded-md border border-white/5 font-semibold">
+                      <span className={`text-[9px] px-2 py-0.5 rounded-md border font-semibold ${
+                        t.intent === 'Question' ? 'bg-blue-500/10 border-blue-550/20 text-blue-400' :
+                        t.intent === 'Request' ? 'bg-purple-500/10 border-purple-550/20 text-purple-400' :
+                        t.intent === 'Update' ? 'bg-gray-500/10 border-gray-550/20 text-gray-400' :
+                        'bg-emerald-500/10 border-emerald-550/20 text-emerald-400'
+                      }`}>
                         {t.intent}
                       </span>
                     </div>
