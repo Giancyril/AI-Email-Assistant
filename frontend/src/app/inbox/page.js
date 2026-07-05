@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, Mail, Send, ChevronRight, LogOut, Search, RefreshCw,
-  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2
+  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check
 } from 'lucide-react';
 import UrgencyBadge from '@/components/UrgencyBadge';
 import api from '@/lib/api';
@@ -109,6 +109,7 @@ export default function InboxDashboard() {
   const [syncing, setSyncing] = useState(false);
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
+  const [copied, setCopied] = useState(false);
 
   // AI Insights
   const [summary, setSummary] = useState('');
@@ -262,6 +263,12 @@ export default function InboxDashboard() {
     setSyncing(true);
     await fetchThreads();
     setSyncing(false);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(replyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSendReply = async () => {
@@ -464,6 +471,14 @@ export default function InboxDashboard() {
                     Co-pilot Powered by Google Gemini AI
                   </span>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopy}
+                      type="button"
+                      className="px-3 py-1.5 bg-gray-850 hover:bg-gray-800 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
+                    >
+                      {copied ? <Check size={11} className="text-emerald-400" /> : <Clipboard size={11} />}
+                      {copied ? 'Copied' : 'Copy'}
+                    </button>
                     <button
                       onClick={() => setReplyText('')}
                       className="px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all"
