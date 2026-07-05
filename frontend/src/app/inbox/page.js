@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, Mail, Send, ChevronRight, LogOut, Search, RefreshCw,
-  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check
+  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check, Download
 } from 'lucide-react';
 import UrgencyBadge from '@/components/UrgencyBadge';
 import api from '@/lib/api';
@@ -263,6 +263,17 @@ export default function InboxDashboard() {
     setSyncing(true);
     await fetchThreads();
     setSyncing(false);
+  };
+
+  const handleExportSummary = () => {
+    if (!summary) return;
+    const element = document.createElement('a');
+    const file = new Blob([`Subject: ${activeThread?.subject}\nFrom: ${activeThread?.from}\n\nAI THREAD SUMMARY:\n${summary}`], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `summary-${selectedId}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   const handleCopy = () => {
@@ -531,9 +542,16 @@ export default function InboxDashboard() {
 
                 {/* Summarizer */}
                 <div className="space-y-2">
-                  <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Thread Summary
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Thread Summary
+                    </h3>
+                    {summary && (
+                      <button onClick={handleExportSummary} title="Export to TXT" className="text-gray-500 hover:text-white transition-colors">
+                        <Download size={11} />
+                      </button>
+                    )}
+                  </div>
                   <div className="bg-gray-900 border border-white/5 rounded-xl p-3.5 text-xs text-gray-400 leading-relaxed">
                     {summary || 'No summary generated.'}
                   </div>
