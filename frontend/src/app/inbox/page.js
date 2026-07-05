@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, Mail, Send, ChevronRight, LogOut, Search, RefreshCw,
-  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check, Download, HelpCircle
+  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check, Download, HelpCircle, Paperclip, Globe
 } from 'lucide-react';
 import UrgencyBadge from '@/components/UrgencyBadge';
 import api from '@/lib/api';
