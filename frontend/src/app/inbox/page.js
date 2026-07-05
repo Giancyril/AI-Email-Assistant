@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles, Mail, Send, ChevronRight, LogOut, Search, RefreshCw,
-  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check, Download
+  AlertCircle, Star, ArrowRight, CornerUpLeft, CheckCircle2, MessageSquare, Trash2, Clipboard, Check, Download, HelpCircle
 } from 'lucide-react';
 import UrgencyBadge from '@/components/UrgencyBadge';
 import api from '@/lib/api';
@@ -110,6 +110,7 @@ export default function InboxDashboard() {
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
   const [copied, setCopied] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // AI Insights
   const [summary, setSummary] = useState('');
@@ -322,6 +323,12 @@ export default function InboxDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowShortcuts(true)}
+              className="flex items-center gap-1.5 px-2 py-1.5 text-gray-500 hover:text-white text-xs transition-colors" title="Keyboard Shortcuts"
+            >
+              <HelpCircle size={13} />
+            </button>
             <button
               onClick={handleSync}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white transition-colors"
@@ -608,6 +615,24 @@ export default function InboxDashboard() {
           </div>
         </div>
       </div>
+      {/* Keyboard Shortcuts Modal */}
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gray-900 border border-white/5 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            <div className="flex justify-between items-center border-b border-white/5 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-1.5"><HelpCircle size={14} className="text-indigo-400" /> Keyboard Shortcuts</h3>
+              <button onClick={() => setShowShortcuts(false)} className="text-xs text-gray-500 hover:text-white">&times; Close</button>
+            </div>
+            <div className="space-y-2.5 text-xs text-gray-450">
+              <div className="flex justify-between"><span>Navigate Up</span><kbd className="bg-white/5 px-2 py-0.5 rounded text-[10px] border border-white/5 font-mono text-white">ArrowUp / J</kbd></div>
+              <div className="flex justify-between"><span>Navigate Down</span><kbd className="bg-white/5 px-2 py-0.5 rounded text-[10px] border border-white/5 font-mono text-white">ArrowDown / K</kbd></div>
+              <div className="flex justify-between"><span>Sync Inbox</span><kbd className="bg-white/5 px-2 py-0.5 rounded text-[10px] border border-white/5 font-mono text-white">S</kbd></div>
+              <div className="flex justify-between"><span>Focus Reply Box</span><kbd className="bg-white/5 px-2 py-0.5 rounded text-[10px] border border-white/5 font-mono text-white">R</kbd></div>
+              <div className="flex justify-between"><span>Clear Reply text</span><kbd className="bg-white/5 px-2 py-0.5 rounded text-[10px] border border-white/5 font-mono text-white">Esc</kbd></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
