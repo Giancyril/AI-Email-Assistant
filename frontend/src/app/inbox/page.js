@@ -568,7 +568,7 @@ export default function InboxDashboard() {
                 </div>
               </div>
 
-              {/* Thread Messages */}
+              {/* Thread Messages & Reply Editor */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {activeThread.messages.map((msg, i) => (
                   <div key={i} className="bg-gray-900 border border-white/5 rounded-2xl p-4 space-y-2">
@@ -585,78 +585,78 @@ export default function InboxDashboard() {
                     )}
                   </div>
                 ))}
-              </div>
 
-              {/* Reply Editor */}
-              <div className="p-4 border-t border-white/5 space-y-3 bg-gray-900/40">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <div className="flex items-center gap-2 shrink-0">
-                    <CornerUpLeft size={12} />
-                    <CustomSelectDropdown
-                      value=""
-                      onChange={(val) => handleTemplateChange({ target: { value: val } })}
-                      placeholder="Template"
-                      options={[
-                        { value: "Hi, scheduling a quick sync. Does next Tuesday afternoon work for you?", label: "Meeting Sync" },
-                        { value: "Hi there, thanks for the update. I will review this and follow up shortly.", label: "Ack Update" },
-                        { value: "Thanks for reaching out! I am currently out of office and will reply when I return.", label: "Out of Office" }
-                      ]}
-                      className="w-24 text-[10px]"
-                    />
+                {/* Reply Editor (rendered inline below email messages) */}
+                <div className="p-4 border border-white/5 bg-gray-900/30 rounded-2xl space-y-3 mt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <div className="flex items-center gap-2 shrink-0">
+                        <CornerUpLeft size={12} />
+                        <CustomSelectDropdown
+                          value=""
+                          onChange={(val) => handleTemplateChange({ target: { value: val } })}
+                          placeholder="Template"
+                          options={[
+                            { value: "Hi, scheduling a quick sync. Does next Tuesday afternoon work for you?", label: "Meeting Sync" },
+                            { value: "Hi there, thanks for the update. I will review this and follow up shortly.", label: "Ack Update" },
+                            { value: "Thanks for reaching out! I am currently out of office and will reply when I return.", label: "Out of Office" }
+                          ]}
+                          className="w-24 text-[10px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {/* Tone selectors */}
+                      {['formal', 'casual', 'urgent', 'apologetic', 'assertive'].map(t => (
+                        <button
+                          key={t}
+                          onClick={() => handleToneChange(t)}
+                          disabled={draftsLoading[t]}
+                          className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all flex items-center gap-1 ${activeTone === t
+                            ? 'bg-indigo-600 border-indigo-500/50 text-white shadow-md'
+                            : 'bg-white/5 border-white/5 text-gray-400 hover:text-white'
+                            } disabled:opacity-50`}
+                        >
+                          {t} {draftsLoading[t] && <RefreshCw size={8} className="animate-spin text-white" />}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {/* Tone selectors */}
-                    {['formal', 'casual', 'urgent', 'apologetic', 'assertive'].map(t => (
+
+                  <textarea
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    placeholder="Draft your reply here..."
+                    className="w-full bg-gray-800/60 border border-white/5 text-white placeholder-gray-650 text-xs rounded-xl p-3 h-28 outline-none focus:border-white/10 transition-all resize-none"
+                  />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-gray-600">
+                      Co-pilot Powered by Google Gemini AI
+                    </span>
+                    <div className="flex items-center gap-2">
                       <button
-                        key={t}
-                        onClick={() => handleToneChange(t)}
-                        disabled={draftsLoading[t]}
-                        className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all flex items-center gap-1 ${activeTone === t
-                          ? 'bg-indigo-600 border-indigo-500/50 text-white shadow-md'
-                          : 'bg-white/5 border-white/5 text-gray-400 hover:text-white'
-                          } disabled:opacity-50`}
+                        onClick={handleCopy}
+                        type="button"
+                        className="px-3 py-1.5 bg-gray-850 hover:bg-gray-800 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
                       >
-                        {t} {draftsLoading[t] && <RefreshCw size={8} className="animate-spin text-white" />}
+                        {copied ? <Check size={11} className="text-emerald-400" /> : <Clipboard size={11} />}
+                        {copied ? 'Copied' : 'Copy'}
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                <textarea
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                  placeholder="Draft your reply here..."
-                  className="w-full bg-gray-800/60 border border-white/5 text-white placeholder-gray-650 text-xs rounded-xl p-3 h-28 outline-none focus:border-white/10 transition-all resize-none"
-                />
-
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-gray-600">
-                    Co-pilot Powered by Google Gemini AI
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleCopy}
-                      type="button"
-                      className="px-3 py-1.5 bg-gray-850 hover:bg-gray-800 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
-                    >
-                      {copied ? <Check size={11} className="text-emerald-400" /> : <Clipboard size={11} />}
-                      {copied ? 'Copied' : 'Copy'}
-                    </button>
-                    <button
-                      onClick={() => setReplyText('')}
-                      className="px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      onClick={handleSendReply}
-                      disabled={sending || !replyText}
-                      className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-655 hover:bg-indigo-600 text-white text-xs font-semibold rounded-xl transition-all shadow-md shadow-indigo-500/10 disabled:opacity-50"
-                    >
-                      {sending ? 'Sending...' : 'Send'} <Send size={11} />
-                    </button>
+                      <button
+                        onClick={() => setReplyText('')}
+                        className="px-3 py-1.5 bg-gray-800 hover:bg-gray-750 text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition-all"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={handleSendReply}
+                        disabled={sending || !replyText}
+                        className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-655 hover:bg-indigo-600 text-white text-xs font-semibold rounded-xl transition-all shadow-md shadow-indigo-500/10 disabled:opacity-50"
+                      >
+                        {sending ? 'Sending...' : 'Send'} <Send size={11} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
