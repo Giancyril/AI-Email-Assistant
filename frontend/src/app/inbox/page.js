@@ -278,6 +278,14 @@ export default function InboxDashboard() {
     document.body.removeChild(element);
   };
 
+  const handleDeleteThread = (threadId) => {
+    if (confirm('Are you sure you want to delete this thread?')) {
+      setThreads(prev => prev.filter(t => t.id !== threadId));
+      setActiveThread(null);
+      setSelectedId('');
+    }
+  };
+
   const toggleReadStatus = (threadId) => {
     setThreads(prev =>
       prev.map(t => (t.id === threadId ? { ...t, isRead: !t.isRead } : t))
@@ -457,6 +465,9 @@ export default function InboxDashboard() {
                       <span className="text-[10px] text-gray-500 font-bold bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
                         {classification.intent}
                       </span>
+                      <button onClick={() => handleDeleteThread(activeThread.id)} title="Delete Thread" className="text-gray-500 hover:text-red-400 transition-colors">
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   )}
                 </div>
