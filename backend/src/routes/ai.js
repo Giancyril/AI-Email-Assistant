@@ -6,12 +6,12 @@ const router = express.Router();
 // POST /api/ai/summarize
 router.post('/summarize', authMiddleware, async (req, res) => {
   try {
-    const { threadContent } = req.body;
+    const { threadContent, customDirectives } = req.body;
     if (!threadContent) {
       return res.status(400).json({ error: 'Thread content is required' });
     }
 
-    const summary = await summarizeThread(threadContent);
+    const summary = await summarizeThread(threadContent, customDirectives);
     res.json({ summary });
   } catch (error) {
     console.error('Summarize error:', error);
@@ -22,12 +22,12 @@ router.post('/summarize', authMiddleware, async (req, res) => {
 // POST /api/ai/draft
 router.post('/draft', authMiddleware, async (req, res) => {
   try {
-    const { threadContent, tone } = req.body;
+    const { threadContent, tone, customDirectives } = req.body;
     if (!threadContent) {
       return res.status(400).json({ error: 'Thread content is required' });
     }
 
-    const drafts = await generateDrafts(threadContent, tone);
+    const drafts = await generateDrafts(threadContent, tone, customDirectives);
     res.json({ drafts });
   } catch (error) {
     console.error('Draft generation error:', error);

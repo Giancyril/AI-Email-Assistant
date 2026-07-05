@@ -18,7 +18,8 @@ function getGeminiClient() {
  * @param {string} threadContent - Concatenated string of thread messages.
  * @returns {Promise<string>} Three-sentence summary.
  */
-async function summarizeThread(threadContent) {
+async function summarizeThread(threadContent, customDirectives = '') {
+  const directivesPrompt = customDirectives ? `\nAdditional directives: ${customDirectives}` : '';
   try {
     const ai = getGeminiClient();
     const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -28,7 +29,7 @@ Focus on: what was asked, what was decided, and what needs to happen next.
 Thread:
 ${threadContent}
 
-Summary:`;
+Summary:\n${directivesPrompt}`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -45,7 +46,8 @@ Summary:`;
  * @param {string} tone - formal/casual/urgent/apologetic/assertive.
  * @returns {Promise<string>} Generated drafts.
  */
-async function generateDrafts(threadContent, tone = 'formal') {
+async function generateDrafts(threadContent, tone = 'formal', customDirectives = '') {
+  const directivesPrompt = customDirectives ? `\nAdditional directives: ${customDirectives}` : '';
   try {
     const ai = getGeminiClient();
     const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -57,7 +59,7 @@ Thread:
 ${threadContent}
 
 Draft 1 (direct):
-Draft 2 (warmer):`;
+Draft 2 (warmer):\n${directivesPrompt}`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;

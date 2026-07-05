@@ -115,6 +115,7 @@ export default function InboxDashboard() {
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
   const [copied, setCopied] = useState(false);
+  const [customDirectives, setCustomDirectives] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [translating, setTranslating] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -211,8 +212,8 @@ export default function InboxDashboard() {
 
       // Run AI calls in parallel
       const [summaryRes, draftRes, followupRes, classifyRes] = await Promise.all([
-        api.post('/api/ai/summarize', { threadContent }).catch(e => ({ data: { summary: 'Summary unavailable.' } })),
-        api.post('/api/ai/draft', { threadContent, tone: 'formal' }).catch(e => null),
+        api.post('/api/ai/summarize', { threadContent, customDirectives }).catch(e => ({ data: { summary: 'Summary unavailable.' } })),
+        api.post('/api/ai/draft', { threadContent, tone: 'formal', customDirectives }).catch(e => null),
         api.post('/api/ai/followup', { threadContent }).catch(e => ({ data: { followups: '• No suggested actions.' } })),
         api.post('/api/ai/classify', { threadContent }).catch(e => ({ data: { urgency: 'Medium', intent: 'Update' } }))
       ]);
@@ -701,6 +702,20 @@ export default function InboxDashboard() {
                     )}
                   </div>
                 </div>
+                {/* Custom instructions directives */}
+                <div className="space-y-2">
+                  <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Custom Directives
+                  </h3>
+                  <input
+                    type="text"
+                    placeholder="e.g. Keep summaries brief..."
+                    value={customDirectives}
+                    onChange={(e) => setCustomDirectives(e.target.value)}
+                    className="w-full bg-gray-900 border border-white/5 text-[11px] text-white rounded-lg px-2.5 py-1.5 outline-none focus:border-white/10 transition-all"
+                  />
+                </div>
+
                 {/* Translation tool */}
                 <div className="space-y-2">
                   <h3 className="text-xs font-bold text-white flex items-center justify-between">
