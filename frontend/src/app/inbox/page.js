@@ -110,6 +110,8 @@ export default function InboxDashboard() {
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
   const [copied, setCopied] = useState(false);
+  const [translatedText, setTranslatedText] = useState('');
+  const [translating, setTranslating] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [starredThreads, setStarredThreads] = useState({});
   const [searchHistory, setSearchHistory] = useState(['invoice', 'meeting', 'action required']);
@@ -156,6 +158,7 @@ export default function InboxDashboard() {
       setDrafts(null);
       setFollowups([]);
       setClassification(null);
+      setTranslatedText('');
 
       const res = await api.get(`/api/emails/${threadId}`);
       setActiveThread(res.data);
@@ -311,6 +314,20 @@ export default function InboxDashboard() {
     if (!val) return;
     setReplyText(val);
     e.target.value = '';
+  };
+
+  const handleTranslate = async (lang) => {
+    if (!lang || !activeThread) return;
+    try {
+      setTranslating(true);
+      const content = activeThread.messages.map(m => m.content).join('\n');
+      const res = await api.post('/api/ai/translate', { text: content, language: lang });
+      setTranslatedText(res.data.translatedText);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   const handleCopy = () => {
@@ -654,6 +671,27 @@ export default function InboxDashboard() {
                     )}
                   </div>
                 </div>
+                {/* Translation tool */}
+                <div className="space-y-2">
+                  <h3 className="text-xs font-bold text-white flex items-center justify-between">
+                    <span className="flex items-center gap-1.5"><Globe size={11} className="text-indigo-400" /> AI Translation</span>
+                    <select onChange={(e) => handleTranslate(e.target.value)} className="bg-transparent border border-white/5 text-[10px] text-gray-500 outline-none rounded cursor-pointer">
+                      <option value="" className="bg-gray-900">Select Lang</option>
+                      <option value="Spanish" className="bg-gray-900">Spanish</option>
+                      <option value="French" className="bg-gray-900">French</option>
+                      <option value="Japanese" className="bg-gray-900">Japanese</option>
+                      <option value="Filipino" className="bg-gray-900">Filipino</option>
+                    </select>
+                  </h3>
+                  {translating ? (
+                    <div className="text-[10px] text-gray-600">Translating...</div>
+                  ) : translatedText ? (
+                    <div className="bg-gray-900 border border-indigo-500/10 rounded-xl p-3 text-[11px] text-gray-400 max-h-40 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                      {translatedText}
+                    </div>
+                  ) : null}
+                </div>
+
                 {/* Tone selector preview drafts */}
                 {drafts && (
                   <div className="space-y-2">

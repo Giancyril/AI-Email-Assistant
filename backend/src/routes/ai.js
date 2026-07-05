@@ -67,4 +67,19 @@ router.post('/classify', authMiddleware, async (req, res) => {
   }
 });
 
+// POST /api/ai/translate
+router.post('/translate', authMiddleware, async (req, res) => {
+  try {
+    const { text, language } = req.body;
+    const { getGeminiClient } = require('../services/geminiService');
+    const ai = getGeminiClient();
+    const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await model.generateContent(`Translate this email to ${language}. Return ONLY the translated email body.\n\nEmail:\n${text}`);
+    res.json({ translatedText: result.response.text().trim() });
+  } catch (error) {
+    console.error('Translation error:', error);
+    res.status(500).json({ error: 'Failed to translate email' });
+  }
+});
+
 module.exports = router;
