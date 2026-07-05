@@ -506,6 +506,7 @@ export default function InboxDashboard() {
                   <div
                     key={t.id}
                     onClick={() => handleSelectThread(t)}
+                    onDoubleClick={() => toggleReadStatus(t.id)}
                     className={`p-4 cursor-pointer transition-all duration-150 relative ${selectedId === t.id ? 'bg-white/5 border-l-2 border-indigo-500' : 'hover:bg-white/[0.02]'
                       }`}
                   >
