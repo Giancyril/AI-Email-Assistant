@@ -117,6 +117,7 @@ export default function InboxDashboard() {
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
   const [copied, setCopied] = useState(false);
+  const [compactMode, setCompactMode] = useState(false);
   const [textSize, setTextSize] = useState('medium');
   const [summaryLength, setSummaryLength] = useState('medium');
   const [toastMessage, setToastMessage] = useState('');
@@ -540,7 +541,7 @@ export default function InboxDashboard() {
                     key={t.id}
                     onClick={() => handleSelectThread(t)}
                     onDoubleClick={() => toggleReadStatus(t.id)}
-                    className={`p-4 cursor-pointer transition-all duration-200 relative hover:translate-x-0.5 border-b border-white/[0.02] ${selectedId === t.id ? 'bg-indigo-950/20 border-l-2 border-indigo-550 shadow-inner' : 'hover:bg-white/[0.015]'
+                    className={`cursor-pointer transition-all duration-200 relative hover:translate-x-0.5 border-b border-white/[0.02] ${compactMode ? 'p-2' : 'p-4'} ${selectedId === t.id ? 'bg-indigo-950/20 border-l-2 border-indigo-550 shadow-inner' : 'hover:bg-white/[0.015]'
                       }`}
                   >
                     <div className="flex items-center justify-between mb-1">
