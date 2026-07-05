@@ -120,32 +120,57 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-function getMessageBody(payload) {
-  if (payload.body && payload.body.data) {
-    return Buffer.from(payload.body.data, 'base64').toString('utf-8');
+function parseMessageParts(part, result = { html: '', text: '' }) {
+  if (part.mimeType === 'text/plain' && part.body && part.body.data) {
+    result.text += Buffer.from(part.body.data, 'base64').toString('utf-8');
+  } else if (part.mimeType === 'text/html' && part.body && part.body.data) {
+    result.html += Buffer.from(part.body.data, 'base64').toString('utf-8');
   }
-  
-  if (payload.parts) {
-    // Look for text/plain or text/html part
-    const plainPart = payload.parts.find(p => p.mimeType === 'text/plain');
-    if (plainPart && plainPart.body && plainPart.body.data) {
-      return Buffer.from(plainPart.body.data, 'base64').toString('utf-8');
-    }
-    
-    const htmlPart = payload.parts.find(p => p.mimeType === 'text/html');
-    if (htmlPart && htmlPart.body && htmlPart.body.data) {
-      // Stripping HTML tags simply for readable summaries/preview
-      const htmlStr = Buffer.from(htmlPart.body.data, 'base64').toString('utf-8');
-      return htmlStr.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    }
 
-    for (const part of payload.parts) {
-      const body = getMessageBody(part);
-      if (body) return body;
+  if (part.parts) {
+    for (const subPart of part.parts) {
+      parseMessageParts(subPart, result);
     }
   }
-  
-  return '';
+
+  return result;
+}
+
+function parseMessage(message) {
+  const payload = message.payload;
+  if (!payload) return { text: '', html: '' };
+
+  const result = { html: '', text: '' };
+
+  if (payload.body && payload.body.data) {
+    const content = Buffer.from(payload.body.data, 'base64').toString('utf-8');
+    if (payload.mimeType === 'text/html') {
+      result.html = content;
+    } else {
+      result.text = content;
+    }
+  }
+
+  if (payload.parts) {
+    parseMessageParts(payload, result);
+  }
+
+  // If we only got HTML, create plain text by stripping HTML tags
+  if (!result.text && result.html) {
+    result.text = result.html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove CSS blocks
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove JS blocks
+      .replace(/<[^>]*>/g, ' ') // Strip HTML tags
+      .replace(/\s+/g, ' ') // Collapse whitespace
+      .trim();
+  }
+
+  // If we only got text, create HTML by wrapping it in styled container
+  if (!result.html && result.text) {
+    result.html = `<div style="font-family: sans-serif; font-size: 14px; line-height: 1.5; color: #333; white-space: pre-wrap;">${result.text}</div>`;
+  }
+
+  return result;
 }
 
 // GET /api/emails/:threadId
@@ -177,11 +202,14 @@ router.get('/:threadId', authMiddleware, async (req, res) => {
         }
       } catch {}
 
+      const parsed = parseMessage(m);
+
       return {
         id: m.id,
         sender: mFrom,
         time: timeStr,
-        content: getMessageBody(m.payload)
+        content: parsed.text,
+        htmlContent: parsed.html
       };
     });
 

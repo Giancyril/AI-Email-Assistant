@@ -8,6 +8,75 @@ import {
 import UrgencyBadge from '@/components/UrgencyBadge';
 import api from '@/lib/api';
 
+const SafeHtmlViewer = ({ html }) => {
+  const iframeRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (iframeRef.current) {
+      const doc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+      doc.open();
+      
+      const styledHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body {
+              margin: 0;
+              padding: 16px;
+              background-color: #ffffff;
+              color: #1a1a1a;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            img {
+              max-width: 100% !important;
+              height: auto !important;
+            }
+            a {
+              color: #2563eb;
+              text-decoration: underline;
+            }
+            table {
+              max-width: 100% !important;
+              width: 100% !important;
+            }
+          </style>
+        </head>
+        <body>
+          ${html}
+        </body>
+        </html>
+      `;
+      doc.write(styledHtml);
+      doc.close();
+
+      const resizeIframe = () => {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          iframeRef.current.style.height = '0px';
+          iframeRef.current.style.height = `${iframeRef.current.contentWindow.document.body.scrollHeight + 32}px`;
+        }
+      };
+
+      iframeRef.current.addEventListener('load', resizeIframe);
+      const timer = setTimeout(resizeIframe, 150);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [html]);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"
+      className="w-full border-0 rounded-xl bg-white"
+      style={{ minHeight: '150px', transition: 'height 0.2s ease' }}
+    />
+  );
+};
+
 export default function InboxDashboard() {
   const [threads, setThreads] = useState([]);
   const [selectedId, setSelectedId] = useState('');
@@ -331,9 +400,13 @@ export default function InboxDashboard() {
                       <span className="text-xs font-bold text-indigo-400">{msg.sender}</span>
                       <span className="text-[10px] text-gray-600">{msg.time}</span>
                     </div>
-                    <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">
-                      {msg.content}
-                    </p>
+                    {msg.htmlContent ? (
+                      <SafeHtmlViewer html={msg.htmlContent} />
+                    ) : (
+                      <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        {msg.content}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
