@@ -142,6 +142,11 @@ export default function InboxDashboard() {
   }, []);
 
   useEffect(() => {
+    const unread = threads.filter(t => !t.isRead).length;
+    document.title = unread > 0 ? `(${unread}) MailAI - Inbox` : 'MailAI - Inbox';
+  }, [threads]);
+
+  useEffect(() => {
     const handleKeys = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       
