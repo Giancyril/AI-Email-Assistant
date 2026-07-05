@@ -1,0 +1,62 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String       @id @default(uuid()) @db.Uuid
+  email       String       @unique
+  name        String?
+  picture     String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  tokens      OAuthToken[]
+  emailCache  EmailCache[]
+  aiDrafts    AIDraft[]
+
+  @@map("users")
+}
+
+model OAuthToken {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  expiresAt    DateTime @map("expires_at")
+  updatedAt    DateTime @default(now()) @map("updated_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("oauth_tokens")
+}
+
+model EmailCache {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  threadId   String   @map("thread_id")
+  subject    String?
+  snippet    String?
+  summary    String?
+  labels     String[]
+  isRead     Boolean  @default(false) @map("is_read")
+  receivedAt DateTime? @map("received_at")
+  cachedAt   DateTime @default(now()) @map("cached_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, threadId])
+  @@map("email_cache")
+}
+
+model AIDraft {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  threadId  String   @map("thread_id")
+  draftBody String   @map("draft_body")
+  tone      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_drafts")
+}
