@@ -99,7 +99,12 @@ export default function InboxDashboard() {
   const [selectedId, setSelectedId] = useState('');
   const [activeThread, setActiveThread] = useState(null);
   const [search, setSearch] = useState('');
-  const [activeTone, setActiveTone] = useState('formal');
+  const [activeTone, setActiveTone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('mailai_preferred_tone') || 'formal';
+    }
+    return 'formal';
+  });
   const [replyText, setReplyText] = useState('');
 
   // Loaders
@@ -256,6 +261,7 @@ export default function InboxDashboard() {
 
   const handleToneChange = async (tone) => {
     setActiveTone(tone);
+    localStorage.setItem('mailai_preferred_tone', tone);
     if (!activeThread) return;
 
     if (drafts && drafts[tone]) {
