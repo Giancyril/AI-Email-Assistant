@@ -112,6 +112,8 @@ export default function InboxDashboard() {
   const [copied, setCopied] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [starredThreads, setStarredThreads] = useState({});
+  const [searchHistory, setSearchHistory] = useState(['invoice', 'meeting', 'action required']);
+  const [showHistory, setShowHistory] = useState(false);
 
   // AI Insights
   const [summary, setSummary] = useState('');
@@ -349,8 +351,18 @@ export default function InboxDashboard() {
                 placeholder="Search subject or sender..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
+                onFocus={() => setShowHistory(true)}
+                onBlur={() => setTimeout(() => setShowHistory(false), 200)}
                 className="bg-white/5 border border-white/5 text-xs text-white rounded-lg pl-9 pr-4 py-1.5 w-64 outline-none focus:border-white/10 transition-all"
               />
+              {showHistory && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-white/5 rounded-xl shadow-xl z-50 p-2 space-y-1">
+                  <p className="text-[9px] text-gray-500 font-bold uppercase tracking-wider px-2 py-1">Recent Searches</p>
+                  {searchHistory.map((s, idx) => (
+                    <button key={idx} onClick={() => setSearch(s)} className="w-full text-left text-xs text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors">{s}</button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
