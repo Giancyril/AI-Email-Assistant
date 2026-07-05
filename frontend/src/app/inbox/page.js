@@ -117,6 +117,7 @@ export default function InboxDashboard() {
   const [sending, setSending] = useState(false);
   const [draftsLoading, setDraftsLoading] = useState({ formal: false, casual: false, urgent: false });
   const [copied, setCopied] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [compactMode, setCompactMode] = useState(false);
   const [textSize, setTextSize] = useState('medium');
   const [summaryLength, setSummaryLength] = useState('medium');
@@ -629,7 +630,13 @@ export default function InboxDashboard() {
               </div>
 
               {/* Thread Messages & Reply Editor */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div ref={el => {
+                if (el) {
+                  el.onscroll = (e) => {
+                    setShowScrollTop(e.target.scrollTop > 180);
+                  };
+                }
+              }} className="flex-1 overflow-y-auto p-4 space-y-4 relative">
                 {activeThread.messages.map((msg, i) => (
                   <div key={i} className="bg-gray-900 border border-white/5 rounded-2xl p-4 space-y-2">
                     <div className="flex justify-between border-b border-white/5 pb-2">
@@ -663,6 +670,19 @@ export default function InboxDashboard() {
                     <CheckCircle2 size={12} />
                     <span>Your response has been dispatched via Gmail OAuth API client.</span>
                   </div>
+                )}
+
+                {showScrollTop && (
+                  <button
+                    onClick={(e) => {
+                      const container = e.target.closest('.overflow-y-auto');
+                      if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    type="button"
+                    className="fixed bottom-36 right-[320px] bg-indigo-650 hover:bg-indigo-600 text-white rounded-full p-2 border border-indigo-500/50 shadow-xl transition-all z-40 text-xs font-bold font-mono"
+                  >
+                    ↑
+                  </button>
                 )}
 
                 {/* Reply Editor (rendered inline below email messages) */}
