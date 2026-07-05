@@ -448,6 +448,9 @@ export default function InboxDashboard() {
                       {t.snippet}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
+                      {(t.subject.toLowerCase().includes('pdf') || t.snippet.toLowerCase().includes('attach') || t.snippet.toLowerCase().includes('file')) && (
+                        <Paperclip size={10} className="text-gray-500 shrink-0" title="Contains attachments" />
+                      )}
                       <UrgencyBadge urgency={t.urgency} />
                       <span className="text-[9px] text-gray-600 bg-white/5 px-2 py-0.5 rounded-md border border-white/5 font-semibold">
                         {t.intent}
