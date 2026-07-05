@@ -118,6 +118,7 @@ export default function InboxDashboard() {
   const [copied, setCopied] = useState(false);
   const [summaryLength, setSummaryLength] = useState('medium');
   const [toastMessage, setToastMessage] = useState('');
+  const [offlineQueue, setOfflineQueue] = useState([]);
   const [sentSuccess, setSentSuccess] = useState(false);
   const [customDirectives, setCustomDirectives] = useState('');
   const [translatedText, setTranslatedText] = useState('');
@@ -402,6 +403,13 @@ export default function InboxDashboard() {
 
   const handleSendReply = async () => {
     if (!replyText || sending) return;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const pending = { threadId: selectedId, body: replyText, subject: activeThread?.subject };
+      setOfflineQueue(prev => [...prev, pending]);
+      showToast('Offline: reply saved to outbox queue!');
+      setReplyText('');
+      return;
+    }
     try {
       setSending(true);
       await api.post(`/api/emails/${selectedId}/send`, { body: replyText });
@@ -490,9 +498,16 @@ export default function InboxDashboard() {
         <div className="w-full md:w-[350px] lg:w-[400px] border-r border-white/5 flex flex-col shrink-0">
           <div className="p-4 border-b border-white/5 flex items-center justify-between">
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Inbox Threads</h2>
-            <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
-              {threads.filter(t => !t.isRead).length} New
-            </span>
+            <div className="flex items-center gap-2">
+              {offlineQueue.length > 0 && (
+                <span className="text-[9px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/10 font-bold animate-pulse">
+                  {offlineQueue.length} Outbox
+                </span>
+              )}
+              <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full font-bold">
+                {threads.filter(t => !t.isRead).length} New
+              </span>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-white/5">
