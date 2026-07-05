@@ -130,6 +130,30 @@ export default function InboxDashboard() {
     fetchThreads();
   }, []);
 
+  useEffect(() => {
+    const handleKeys = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const idx = threads.findIndex(t => t.id === selectedId);
+        if (idx !== -1 && idx < threads.length - 1) {
+          handleSelectThread(threads[idx + 1]);
+        }
+      } else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const idx = threads.findIndex(t => t.id === selectedId);
+        if (idx > 0) {
+          handleSelectThread(threads[idx - 1]);
+        }
+      } else if (e.key === 's') {
+        handleSync();
+      }
+    };
+    window.addEventListener('keydown', handleKeys);
+    return () => window.removeEventListener('keydown', handleKeys);
+  }, [threads, selectedId]);
+
   const fetchThreads = async () => {
     try {
       setLoading(true);
